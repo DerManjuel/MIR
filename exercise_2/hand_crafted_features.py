@@ -33,13 +33,13 @@ class hand_crafted_features:
         [126, 157, 181, 203, 213, 186, 168, 140, 138, 155, 177, 176]
         """
         # TODO: You can change your extraction method here:
-        features = self.image_pixels(image)
+        #features = self.image_pixels(image)
         thumbnail = self.thumbnail_features(image)
         
         # TODO: You can even extend features with another method:
         #features.extend(self.thumbnail_features(image))
 
-        return features, thumbnail
+        return thumbnail
     
     def histogram(self, image):
         # Jasmin
