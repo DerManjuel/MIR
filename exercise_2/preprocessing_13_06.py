@@ -141,7 +141,7 @@ def preprocessing_main(image_directory, output_path, file_extensions = (".png", 
     write_to_file(feature_list, image_paths, output_path)
 
 if __name__ == '__main__':
-    pathname = os.path.abspath("exercise_2/Data/ImageCLEFmed2007_test")
+    pathname = os.path.abspath("exercise_2/Data/images")
     #print(pathname)
     path = os.path.abspath("exercise_2/Data")
     #print('Path', path)

@@ -7,6 +7,26 @@ import csv
 import numpy as np
 import os
 
+
+
+def display_results(query_result):
+    """
+    Function to display retrieved images.
+    Parameters
+    ----------
+    query_result : dict
+        retrieved image paths as keys and similarity score as value.
+    """
+    counter = 0
+    results = list(query_result.items())
+    for i in results:
+        print(i[0])
+        img = cv2.imread(i[0])
+        cv2.imshow('Result', img)
+        cv2.waitKey(0)
+    pass
+
+
 class Query:
 
     def __init__(self, path_to_index):
@@ -95,35 +115,8 @@ class Query:
             CreatedSearcher = Searcher(self.path_to_index)
             self.resultList = CreatedSearcher.search(self.features, limit)
         
-
-
         return self.resultList
 
-
-def display_results(query_result):
-    # Read Images
-    print(type(query_result))
-
-    
-
-    img1 = cv2.imread('GFG.png')
-        
-    # Read Second Image
-    img2 = cv2.imread('GFG.png')
-        
-        
-    # concatenate image Horizontally
-    Hori = np.concatenate((img1, img2), axis=1)
-        
-    # concatenate image Vertically
-    Verti = np.concatenate((img1, img2), axis=0)
-        
-    cv2.imshow('HORIZONTAL', Hori)
-    cv2.imshow('VERTICAL', Verti)
-        
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    pass
 
 
 if __name__ == "__main__":
