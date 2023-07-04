@@ -68,6 +68,7 @@ class Query:
         else:
             exit()
         pass
+
  
     def run(self, limit=10):
         """
@@ -93,8 +94,37 @@ class Query:
         if(self.results==None):
             CreatedSearcher = Searcher(self.path_to_index)
             self.resultList = CreatedSearcher.search(self.features, limit)
+        
+
 
         return self.resultList
+
+
+def display_results(query_result):
+    # Read Images
+    print(type(query_result))
+
+    
+
+    img1 = cv2.imread('GFG.png')
+        
+    # Read Second Image
+    img2 = cv2.imread('GFG.png')
+        
+        
+    # concatenate image Horizontally
+    Hori = np.concatenate((img1, img2), axis=1)
+        
+    # concatenate image Vertically
+    Verti = np.concatenate((img1, img2), axis=0)
+        
+    cv2.imshow('HORIZONTAL', Hori)
+    cv2.imshow('VERTICAL', Verti)
+        
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    pass
+
 
 if __name__ == "__main__":
     path_to_data = os.path.abspath("exercise_2/Data")
@@ -102,8 +132,10 @@ if __name__ == "__main__":
 
     query = Query(path_to_index=path_to_index) # -> print rows
 
-    query_image_name = os.path.join(path_to_data, "ImageCLEFmed2007_test", "3145.png")
+    query_image_name = os.path.join(path_to_data, "images", "3145.png")
     query.set_image_name(query_image_name=query_image_name)
     query_result = query.run()
+
+    display_results(query_result)
 
     print("Retrieved images: ", query_result)
