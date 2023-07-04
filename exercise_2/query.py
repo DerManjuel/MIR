@@ -1,10 +1,11 @@
-from hand_crafted_features import hand_crafted_features
+from hand_crafted_features_13_06 import hand_crafted_features
 #from ae import auto_encoder
 from searcher import Searcher
 import cv2
 from pathlib import Path
 import csv
 import numpy as np
+import os
 
 class Query:
 
@@ -16,7 +17,12 @@ class Query:
         path_to_index : string
             Path to the index file.
         """
-        pass
+        self.path_to_index = path_to_index
+        self.query_image_name = None
+        self.query_image = None
+        self.features = None
+        self.results = None
+        #pass
 
 
     def set_image_name(self, query_image_name):
@@ -35,7 +41,18 @@ class Query:
                 - Read in the image and save it under 'self.query_image'
                 - Calculate features
         """
-        pass
+        # if different image
+        if(self.query_image_name != query_image_name):
+            # set results to None
+            self.results = None                             
+            # set image name
+            self.query_image_name = query_image_name        
+            # read in the image
+            self.query_image  = cv2.imread(self.query_image_name, cv2.IMREAD_GRAYSCALE)
+            # extract the features  
+            self.calculate_features()
+        else:
+            pass
 
     def calculate_features(self):
         """
@@ -43,11 +60,16 @@ class Query:
         Tasks
         ---------
             - Check if "self.query_image" is None -> exit()
-            - Extract features wit "FeatureExtractor" and set to "self.features"
+            - Extract features with "FeatureExtractor" and set to "self.features"
         """
+        extractor = hand_crafted_features()
+        if isinstance(self.query_image, np.ndarray):
+            self.features = extractor.extract(image=self.query_image)
+        else:
+            exit()
         pass
  
-    def run(self, limit = 10):
+    def run(self, limit=10):
         """
         Function to start a query if results have not been computed before.
         Parameters
@@ -67,10 +89,21 @@ class Query:
                 - Set the results to 'self.results'
             - Return the 'limit' first elements of the 'results' list.
         """
-        pass
+        resultList = []
+        if(self.results==None):
+            CreatedSearcher = Searcher(self.path_to_index)
+            self.resultList = CreatedSearcher.search(self.features, limit)
+
+        return self.resultList
 
 if __name__ == "__main__":
-    query = Query(path_to_index= "static/index.csv")
-    query.set_image_name(query_image_name="static/images/database/1880.png")
+    path_to_data = os.path.abspath("exercise_2/Data")
+    path_to_index = os.path.join(path_to_data, "index.csv")
+
+    query = Query(path_to_index=path_to_index) # -> print rows
+
+    query_image_name = os.path.join(path_to_data, "ImageCLEFmed2007_test", "3145.png")
+    query.set_image_name(query_image_name=query_image_name)
     query_result = query.run()
+
     print("Retrieved images: ", query_result)

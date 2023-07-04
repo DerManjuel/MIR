@@ -4,6 +4,8 @@ import math
 import numpy as np
 from numpy.core import sqrt, add
 from pathlib import Path
+from numpy.linalg import norm
+from operator import itemgetter
 
 
 def square_rooted(x):
@@ -18,7 +20,8 @@ def square_rooted(x):
     square rooted : float
         Root of the sum of all squared elements of 'x'.
     """
-    pass
+    return norm(x)
+    #pass
 
 def euclidean_distance(x, y):
     """
@@ -37,7 +40,8 @@ def euclidean_distance(x, y):
     -------
     https://pythonprogramming.net/euclidean-distance-machine-learning-tutorial/
     """
-    pass
+    return norm(x-y)
+    #pass
 
 def manhattan_distance(self, x, y):
     """
@@ -53,7 +57,8 @@ def manhattan_distance(self, x, y):
     manhattan distance : float
         The manhattan distance between vectors `x` and `y`.
     """
-    pass
+    return norm(x-y,1)
+    #pass
 
 def minkowski_distance(self, x, y, p):
     """
@@ -114,6 +119,11 @@ def cosine_distance(self, x, y):
     """
     pass
 
+def distance(list1, list2):
+    """Distance between two vectors."""
+    squares = [(p-q) ** 2 for p, q in zip(list1, list2)]
+    return sum(squares) ** .5
+
 class Searcher:
 
     def __init__(self, path_to_index):
@@ -124,11 +134,12 @@ class Searcher:
         x : string
             Path to the index file.
         """
-        pass
+        self.path_to_index = path_to_index
+        
+        #pass
 
         
-        
-    def search(self, query_features):
+    def search(self, query_features, limit=10):
         """
         Function retrieve similar images based on the queryFeatures
         Parameters
@@ -152,4 +163,20 @@ class Searcher:
             - Sort the results according their distance
             - Return limited results
         """
-        pass
+        csv_data = []
+        res_dict = {}
+
+        with open(self.path_to_index) as csvfile:
+                spamreader = csv.reader(csvfile, delimiter=',')
+                for row in spamreader:
+                    csv_data.append(row)
+
+        for row in csv_data:
+            res = [float(i) for i in row[1:]]
+            dist_result = distance(res, query_features)
+            res_dict[row[0]] = dist_result
+        
+        res2 = dict(sorted(res_dict.items(), key = itemgetter(1))[:limit])
+        
+        
+        return res2
