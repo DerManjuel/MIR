@@ -1,5 +1,5 @@
 import cv2
-from hand_crafted_features import hand_crafted_features
+from hand_crafted_features_13_06 import hand_crafted_features
 #from ae import auto_encoder
 import numpy as np
 import glob
@@ -30,17 +30,18 @@ def get_images_paths(image_directory, file_extensions):
             - Add the paths to a list  (extend)
         - Return result
     """
+    
     result = []
     for i in file_extensions:
-        pattern = image_directory + "*" + i
+        pattern = image_directory + "/*" + i
         path = glob.glob(pattern)
         result.extend(path)
+        #print('Result:', result)
 
     #test
     #example_image = cv2.imread(result[0], cv2.IMREAD_GRAYSCALE)
     #cv2.imshow("Example", example_image)
     #cv2.waitKey(0)
-
     return result
 
 
@@ -98,18 +99,34 @@ def write_to_file(feature_list, image_paths, output_path):
         - Information about files http://www.tutorialspoint.com/python/file_write.htm 
     """
     path = os.path.join(output_path, "index.csv")
-    fo = open(path, 'w')
-    
-    count = 0
 
+    with open(path, 'w+') as f:
+        writer = csv.writer(f, delimiter=',')
+        count = 0
+        for i in feature_list:
+            my_array = image_paths[count].split(' ') + i
+            if count == 0:
+                print(my_array)
+            writer.writerow(my_array)
+            count = count + 1
+    print('I`m done')
+    pass
+
+    '''fo = open(path, 'w')
+
+    count = 0
+    #print(len(feature_list))
     for i in feature_list:
+        my_string = ""
         my_string = ','.join(map(str, i))
+        #print(my_string)
         my_string = image_paths[count] + "," + my_string
-        fo.write(my_string)
+        fo.write(my_string) # wir schreiben nur einen String in eine Datei, aber nicht konvertiert nach CSV!
         fo.write('\n')
-        count = count + 1
+        count += 1
     # Close opend file
     fo.close()
+    #print(my_string)'''
 
 
 def preprocessing_main(image_directory, output_path, file_extensions = (".png", ".jpg")):
@@ -124,7 +141,9 @@ def preprocessing_main(image_directory, output_path, file_extensions = (".png", 
     write_to_file(feature_list, image_paths, output_path)
 
 if __name__ == '__main__':
-    pathname = os.path.join("static", "images", "database", "")
+    pathname = os.path.abspath("exercise_2/Data/images")
     #print(pathname)
+    path = os.path.abspath("exercise_2/Data")
+    #print('Path', path)
 
-    preprocessing_main(image_directory = pathname, output_path="static/")
+    preprocessing_main(image_directory = pathname, output_path=path)

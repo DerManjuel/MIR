@@ -176,7 +176,7 @@ class IRMA:
 
 if __name__ == '__main__':
     #add your specific path here
-    pathname = os.path.join("static", "IRMA_Data")
+    pathname = os.path.abspath("exercise_2/Data/IRMA_data")
     
     image_names = ["1880.png"]
 
