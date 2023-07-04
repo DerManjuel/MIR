@@ -21,7 +21,14 @@ def csv_to_dict(file_path):
     - For each row, add an entry to a dict (first column is key, second column is value)
     - Return the dict
     """
-    pass
+    dict = {}
+
+    with open(file_path, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=';')
+        for row in csv_reader:
+            if len(row) > 0:
+                dict[row[0]] = row[1]  
+    return dict
     
 class IRMA:
     """
@@ -45,8 +52,13 @@ class IRMA:
         - Save the dicts (list) as class variable
         - Save "image_codes.csv" as dict in a class variable
         """
-        pass
-
+        self.dictA = csv_to_dict(os.path.join(pathname, "A.csv"))
+        self.dictB = csv_to_dict(os.path.join(pathname, "B.csv"))
+        self.dictC = csv_to_dict(os.path.join(pathname, "C.csv"))
+        self.dictD = csv_to_dict(os.path.join(pathname, "D.csv"))
+        self.image_dict = csv_to_dict(os.path.join(pathname, "image_codes.csv"))
+        self.dict_lst =[self.dictA, self.dictB, self.dictC, self.dictD]
+        
 
     def get_irma(self, image_names):
         """
@@ -68,7 +80,19 @@ class IRMA:
         - Use self.image_dict to convert names to codes. ('None' if no associated code can be found)
         - Return the list of codes
         """
-        pass
+        code_lst = []
+        for names in image_names:
+            spl = names.rsplit('.', 1)
+            spl = spl[0]
+            if spl in self.image_dict:
+                code = self.image_dict[spl]
+            else:
+                code = None  
+            code_lst.append(code)     
+        
+        return code_lst
+
+
 
     def decode_as_dict(self, code):
         """
@@ -89,7 +113,32 @@ class IRMA:
         - Possible solution: {'Imaging modality': ['x-ray', 'plain radiography', 'analog', 'overview image'], ...}
         - Solution can look different
         """
-        pass
+        #labels_short = ["Imaging modality", "Imaging orientation", "Body region", "System"]
+        counter = 0
+        dict = {}
+        str = ""
+        for i in code:
+            str = str + i
+            if i == '-':
+                counter = counter + 1
+                str = ""
+                continue
+            
+            else:
+                curr_dict = self.dict_lst[counter]
+                if str in curr_dict:
+                    entry = curr_dict[str]
+                else:
+                    entry = "unspecified"
+
+                if self.labels_short[counter] in dict:
+                    dict[self.labels_short[counter]].append(entry)
+                    
+                else:
+                    dict[self.labels_short[counter]] = [entry]                
+
+        return dict         
+
 
     def decode_as_str(self, code):
         """
@@ -111,9 +160,24 @@ class IRMA:
         - Possible solution: ['Imaging modality: x-ray, plain radiography, analog, overview image', 'Imaging orientation: coronal, anteroposterior (AP, coronal), supine', 'Body region: abdomen, unspecified', 'System: uropoietic system, unspecified']
         - Solution can look different -> FLASK will use this representation to visualize the information on the webpage.
         """
-        pass
+        str_dict = self.decode_as_dict(code)
+        #conv_str = str(str_dict) #less code but not as pretty as the other solution
+        conv_str = "["
+        for key in str_dict:
+            conv_str += "'" + key + ": "
+            for elem in str_dict[key]:
+                conv_str += elem + ", "
+            conv_str = conv_str.removesuffix(', ')
+            conv_str += "', "
+        conv_str = conv_str.removesuffix(', ')
+        conv_str += "]"
+        return conv_str
+
 
 if __name__ == '__main__':
+    #add your specific path here
+    pathname = os.path.join("static", "IRMA_Data")
+    
     image_names = ["1880.png"]
 
     irma = IRMA()
@@ -133,7 +197,7 @@ if __name__ == '__main__':
     Codes:  ['1121-127-700-500']
     Dict:
     {'Imaging modality': ['x-ray', 'plain radiography', 'analog', 'overview image'], 'Imaging orientation': ['coronal', 'anteroposterior (AP, coronal)', 'supine'], 'Body region': ['abdomen', 'unspecified'], 'System': ['uropoietic system', 'unspecified']}
-
+    #700 in csvC does not exist and 500 in csvD
 
     String:
     ['Imaging modality: x-ray, plain radiography, analog, overview image', 'Imaging orientation: coronal, anteroposterior (AP, coronal), supine', 'Body region: abdomen, unspecified', 'System: uropoietic system, unspecified']
