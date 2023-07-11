@@ -11,7 +11,7 @@ import os
 from tqdm import tqdm
 
 
-def count_codes(code_path = os.path.abspath("exercise_2/Data/IRMA_data/image_codes.csv")): 
+def count_codes(code_path = os.path.abspath("exercise_2/static/IRMA_data/image_codes.csv")): 
     """
     Counts the occurrence of each code in the given "CSV" file.
 
@@ -161,11 +161,11 @@ def mean_average_precision(limit = 10000):
             - Compute AP (function) and save the value
         - Compute mean of APs
     """
-    pathname = os.path.abspath("exercise_2/Data/images")
-    base_path = os.path.abspath("exercise_2/Data")
+    pathname = os.path.abspath("exercise_2/static/images/database")
+    base_path = os.path.abspath("exercise_2/static")
 
-    irma_path = os.path.abspath("exercise_2/Data/IRMA_data")
-    code_path = os.path.abspath("exercise_2/Data/IRMA_data/image_codes.csv")
+    irma_path = os.path.abspath("exercise_2/static/IRMA_data")
+    code_path = os.path.abspath("exercise_2/static/IRMA_data/image_codes.csv")
     index_path = os.path.join(base_path, "index.csv")
 
     irma = IRMA(irma_path)

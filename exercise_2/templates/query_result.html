@@ -1,0 +1,269 @@
+{% extends "main_page.html" %}
+{% block body %}
+
+<!-- Import Bootstrap JS here -->
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+  integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+  integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+  integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<div class="container" style="margin-top:10px">
+  <!-- Left info bar -->
+  <div class="row">
+    <div class="col-sm-2">
+      <h3>Overview</h3>
+      <!--<p>Optional info here.</p>-->
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index') }}">Select image</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Query results</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Settings</a>
+        </li>
+      </ul>
+      <hr class="d-sm-none">
+    </div>
+
+    <div class="col-sm-9">
+      <h1 class="page-header">Input image</h1>
+
+      {% for image_name, input_code, irma_infos in zipped_input %}
+      <script>
+        input_code = "{{input_code}}"
+      </script>
+      <div>
+        <div class="row">
+          <div class="col">
+            <img src="{{url_for('static', filename='images/query/'+image_name)}}" width="200" height="200">
+          </div>
+          <div class="col">
+            <div class="row">
+              IRMA: {{input_code}}
+            </div>
+            {% for irma_info in irma_infos %}
+            <div class="row">
+              {{irma_info}}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <h1 class="page-header">Query results</h1>
+
+      {{image_names}}
+
+      <!-- div to contain the content -->
+      <div id="scroller" class="mb-3">
+
+        <!-- template schema, hidden from the dom -->
+        <template id="post_template">
+
+          <!-- template content -->
+          <div class="card mb-3 animated fadeIn shadow-sm">
+            <div class="card-body">
+
+              <h4 class="card-title" id="title"></h4>
+
+              <div class="row">
+                <div class="col">
+                  <img class="rounded-sm" width="200" height="200" id="image_place" onclick="click_on_image(this)">
+                </div>
+                <div class="col">
+                  <span class="row" id="content_distance"></span>
+                  <span class="row">
+                    <font id="content_code"></font>
+                  </span>
+                  <span class="row" id="content_decoded_a"></span>
+                  <span class="row" id="content_decoded_b"></span>
+                  <span class="row" id="content_decoded_c"></span>
+                  <span class="row" id="content_decoded_d"></span>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </template>
+
+      </div>
+
+      <!-- element to trigger the IntersectionObserver -->
+      <div class="d-flex justify-content-center mb-3" id="sentinel">
+        <div class="spinner-border" role="status"></div>
+      </div>
+    </div>
+
+    <div class="col-">
+      <div class="text-right" style="position: fixed">
+        <a class="navbar-brand" id="loaded" href="#">0 items loaded</a>
+        <button type="submit" class="btn btn-primary" id="relevance_feedback"
+          onclick="activate_spinner(this);relevance_feedback()" style="visibility:hidden">Relevance feedback!</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+
+<script>
+  var all_images = [];
+
+  // Get references to the dom elements
+  var scroller = document.querySelector("#scroller");
+  var template = document.querySelector('#post_template');
+  var loaded = document.querySelector("#loaded");
+  var sentinel = document.querySelector('#sentinel');
+
+  // Set a counter to count the items loaded
+  var counter = 0;
+
+  // Function to request new items and render to the dom
+  function loadItems() {
+
+    // Use fetch to request data and pass the counter value in the QS
+    fetch(`/load?c=${counter}`).then((response) => {
+
+      // Convert the response data to JSON
+      response.json().then((data) => {
+        // If empty JSON, exit the function
+        if (!data.length) {
+
+          // Replace the spinner with "No more posts"
+          sentinel.innerHTML = "No more images.";
+          return;
+        }
+
+        // Iterate over the items in the response
+        for (var i = 0; i < data.length; i++) {
+
+          // Clone the HTML template
+          let template_clone = template.content.cloneNode(true);
+
+          // Query & update the template content
+          template_clone.querySelector("#title").innerHTML = `${data[i][1]}`;
+          template_clone.querySelector("#content_distance").innerHTML = `Distance:  ${data[i][0]}`
+          template_clone.querySelector("#content_code").innerHTML = `Code: ${data[i][2]}`
+          // Set color of code according if the code is equal to input code or not
+          if (input_code == `${data[i][2]}`) {
+            template_clone.querySelector("#content_code").color = "green"
+          }
+          else {
+            template_clone.querySelector("#content_code").color = "red"
+          }
+          template_clone.querySelector("#content_decoded_a").innerHTML = `${data[i][3]}`
+          template_clone.querySelector("#content_decoded_b").innerHTML = `${data[i][4]}`
+          template_clone.querySelector("#content_decoded_c").innerHTML = `${data[i][5]}`
+          template_clone.querySelector("#content_decoded_d").innerHTML = `${data[i][6]}`
+          template_clone.querySelector("#image_place").src = String(`${data[i][1]}`)
+
+
+          // Append template to dom
+          scroller.appendChild(template_clone);
+
+          // save image name in "all_images" list
+          all_images.push(`${data[i][1]}`.replace(/^.*[\\\/]/, ''))
+
+          // Increment the counter
+          counter += 1;
+
+          // Update the counter 
+          loaded.innerText = `${counter} items loaded`;
+
+        }
+      })
+    })
+  }
+
+  // Create a new IntersectionObserver instance
+  var intersectionObserver = new IntersectionObserver(entries => {
+
+    // Uncomment below to see the entry.intersectionRatio when
+    // the sentinel comes into view
+
+    // entries.forEach(entry => {
+    //   console.log(entry.intersectionRatio);
+    // })
+
+    // If intersectionRatio is 0, the sentinel is out of view
+    // and we don't need to do anything. Exit the function
+    if (entries[0].intersectionRatio <= 0) {
+      return;
+    }
+
+    // Call the loadItems function
+    loadItems();
+
+  });
+
+  // Instruct the IntersectionObserver to watch the sentinel
+  intersectionObserver.observe(sentinel);
+
+
+  // function to select/deselect images
+  function click_on_image(element) {
+    // get filename from whole path
+    filename = element.src.replace(/^.*[\\\/]/, '')
+
+    // if there is no border
+    if (element.style.border == "") {
+      // set border
+      element.style.border = "thick solid #007bff";
+      // add image to selected ones
+      selected_images.push(filename);
+    }
+    else {
+      // remove border
+      element.style.border = "";
+      // remove element from selected images (list)
+      const index = selected_images.indexOf(filename);
+      if (index > -1) {
+        selected_images.splice(index, 1);
+      }
+    }
+    // display "relevance feedback button" only if there is at least one selected image
+    if (selected_images.length == 0) {
+      document.getElementById('relevance_feedback').style.visibility = 'hidden';
+    }
+    else {
+      document.getElementById('relevance_feedback').style.visibility = 'visible';
+    }
+
+    // Difference of the arrays
+    not_selected_images = all_images.filter(x => !selected_images.includes(x));
+  };
+
+  // function which is called when you're at the bottom of the page
+  window.onscroll = function (ev) {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+      // show button to load more images
+      document.getElementById('load_more').style.visibility = 'visible';
+    }
+  };
+
+  function relevance_feedback() {
+    fetch('/relevance_feedback', {
+
+      // Specify the method
+      method: 'POST',
+
+      body: selected_images + ";" + not_selected_images
+    }).then(function (response) {
+      return response.text();
+    }).then(function (text) {
+      if (text == 'OK') {
+        window.location.href = "/relevance_feedback";
+      }
+      console.log('POST response: ');
+      console.log(text);
+    });
+  };
+</script>
+
+</html>
+{% endblock %}

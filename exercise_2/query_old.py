@@ -18,12 +18,11 @@ def display_results(query_result):
         retrieved image paths as keys and similarity score as value.
     """
     counter = 0
-    results = query_result
+    results = list(query_result.items())
     for i in results:
         img = cv2.imread(i[0])
         cv2.imshow('Result', img)
         cv2.waitKey(0)
-
 
 
 class Query:
@@ -42,6 +41,7 @@ class Query:
         self.features = None
         self.results = None
 
+
     def set_image_name(self, query_image_name):
         """
         Function to set the image name if it does not match the current one. Afterwards the image is loaded and features are retrieved.
@@ -58,7 +58,7 @@ class Query:
                 - Read in the image and save it under 'self.query_image'
                 - Calculate features
         """
-                # if different image
+        # if different image
         if(self.query_image_name != query_image_name):
             # set results to None
             self.results = None                             
@@ -77,15 +77,16 @@ class Query:
         Tasks
         ---------
             - Check if "self.query_image" is None -> exit()
-            - Extract features wit "FeatureExtractor" and set to "self.features"
+            - Extract features with "FeatureExtractor" and set to "self.features"
         """
         extractor = hand_crafted_features()
         if isinstance(self.query_image, np.ndarray):
             self.features = extractor.extract(image=self.query_image)
         else:
             exit()
-        
-    def run(self, counter = 0, quantity = 10):
+
+ 
+    def run(self, limit=10):
         """
         Function to start a query if results have not been computed before.
         Parameters
@@ -105,107 +106,25 @@ class Query:
                 - Set the results to 'self.results'
             - Return the 'limit' first elements of the 'results' list.
         """
-        self.old_limit = 0
-        self.results = []
-        limit = counter + quantity
-        if(self.results is None) or (self.old_limit != limit):
+        resultList = []
+        if(self.results==None):
             CreatedSearcher = Searcher(self.path_to_index)
-            self.results = CreatedSearcher.search(self.features, limit)
-            #self.results = self.searcher.search_tree(self.features, limit)
-            if (self.results is False):
-                print("Results is empty")
-                quit()
+            self.resultList = CreatedSearcher.search(self.features, limit)
         
-        self.old_limit = limit
-        
-        #return our (limited) results
-        return self.results[counter : counter + quantity]
+        return self.resultList
 
 
-
-    def relevance_feedback(self, selected_images, not_selected_images, limit):
-        """
-        Function to start a relevance feedback query.
-        Parameters
-        ----------
-        selected_images : list
-            List of selected images.
-        not_selected_images : list
-            List of not selected images.
-        limit : int
-            Amount of results that will be retrieved. Default: 10.
-        Returns
-        -------
-        - results : list
-            List with the 'limit' first elements of the 'results' list. 
-        """
-
-        # TODO:
-        pass
-
-    def get_feature_vector(self, image_names):
-        """
-        Function to get features from 'index' file for given image names.
-        Parameters
-        ----------
-        image_names : list
-            List of images names.
-        Returns
-        -------
-        - features : list
-            List with of features.
-        """
-        """if Path(self.path_to_index).exists():
-            with open(self.path_to_index) as csvfile:
-                csvreader = csv.reader(csvfile, delimiter=',')
-                for row in csvreader:
-                    for i in images_names:
-
-                    res = [float(i) for i in row[1:]]
-                     
-        else:
-            raise ValueError('No path to index file is given.') 
-        
-            """
-        #TODO:
-        pass
-    
-def rocchio(original_query, relevant, non_relevant, a = 1, b = 0.8, c = 0.1):
-    """
-    Function to adapt features with rocchio approach.
-
-    Parameters
-    ----------
-    original_query : list
-        Features of the original query.
-    relevant : list
-        Features of the relevant images.
-    non_relevant : list
-        Features of the non relevant images.
-    a : int
-        Rocchio parameter.
-    b : int
-        Rocchio parameter.
-    c : int
-        Rocchio parameter.
-    Returns
-    -------
-    - features : list
-        List with of features.
-    """
-    
-    # TODO:
-    pass
 
 if __name__ == "__main__":
-    path_to_data = os.path.abspath("exercise_2/static")
+    path_to_data = os.path.abspath("exercise_2/Data")
     path_to_index = os.path.join(path_to_data, "index.csv")
 
-    query = Query(path_to_index= path_to_index)
+    query = Query(path_to_index=path_to_index) # -> print rows
 
-    query_image_name = os.path.join(path_to_data, "images", "database", "3145.png")
+    query_image_name = os.path.join(path_to_data, "images", "3145.png")
     query.set_image_name(query_image_name=query_image_name)
     query_result = query.run()
-    print("Retrieved images: ", query_result)
 
     display_results(query_result)
+
+    print("Retrieved images: ", query_result)

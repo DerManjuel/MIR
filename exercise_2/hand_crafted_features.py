@@ -183,7 +183,7 @@ def img_resize(img, factor=0.5):
 if __name__ == '__main__':
     # Read the test image
     # TODO: You can change the image path here:
-    pathname = os.path.abspath("exercise_2/Data/images/3145.png")
+    pathname = os.path.abspath("exercise_2/static/images/database/3145.png")
     print(pathname)
     example_image = cv2.imread(pathname, cv2.IMREAD_GRAYSCALE)
     

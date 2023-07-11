@@ -158,19 +158,23 @@ class Searcher:
             - Sort the results according their distance
             - Return limited results
         """
-        csv_data = []
         res_dict = {}
+        res_list = []
 
-        with open(self.path_to_index) as csvfile:
-                spamreader = csv.reader(csvfile, delimiter=',')
-                for row in spamreader:
-                    csv_data.append(row)
+        if Path(self.path_to_index).exists():
+            with open(self.path_to_index) as csvfile:
+                csvreader = csv.reader(csvfile, delimiter=',')
+                for row in csvreader:
+                    res = [float(i) for i in row[1:]]
+                    dist_result = distance(res, query_features)
+                    res_dict[row[0]] = dist_result
 
-        for row in csv_data:
-            res = [float(i) for i in row[1:]]
-            dist_result = distance(res, query_features)
-            res_dict[row[0]] = dist_result
+            csvfile.close()
+            res2 = dict(sorted(res_dict.items(), key = itemgetter(1))[:limit])
+            res_list = list(res2.items())
+                     
+        else:
+            raise ValueError('No path to index file is given.')                   
         
-        res2 = dict(sorted(res_dict.items(), key = itemgetter(1))[:limit])
         
-        return res2
+        return res_list

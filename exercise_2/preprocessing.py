@@ -122,8 +122,8 @@ def preprocessing_main(image_directory, output_path, file_extensions = (".png", 
     write_to_file(feature_list, image_paths, output_path)
 
 if __name__ == '__main__':
-    pathname = os.path.abspath("exercise_2/Data/images")
-    path = os.path.abspath("exercise_2/Data")
+    pathname = os.path.abspath("exercise_2/static/images/database")
+    path = os.path.abspath("exercise_2/static")
     #print('Path', path)
 
     preprocessing_main(image_directory = pathname, output_path=path)

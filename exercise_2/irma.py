@@ -37,7 +37,7 @@ class IRMA:
     labels_long = ["Technical code for imaging modality", "Directional code for imaging orientation", "Anatomical code for body region examined", "Biological code for system examined"]
     labels_short = ["Imaging modality", "Imaging orientation", "Body region", "System"]
 
-    def __init__(self, dir_path= os.path.abspath("exercise_2/Data/IRMA_data")):
+    def __init__(self, dir_path= os.path.abspath("exercise_2/static/IRMA_data")):
         """
         Constructor of an IRMA element.
 
@@ -176,7 +176,7 @@ class IRMA:
 
 if __name__ == '__main__':
     #add your specific path here
-    pathname = os.path.abspath("exercise_2/Data/IRMA_data")
+    pathname = os.path.abspath("exercise_2/static/IRMA_data")
     
     image_names = ["1880.png"]
 
