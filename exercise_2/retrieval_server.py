@@ -41,7 +41,7 @@ def index():
 @app.route("/selected_image", methods=['POST'])
 def select_query_image():
     global selected_image
-    target = os.path.join(APP_ROOT, 'static/images/query')
+    target = os.path.join(APP_ROOT, 'static','images','query','') #changed
 
     if not os.path.isdir(target):
         os.mkdir(target)
@@ -63,7 +63,7 @@ def select_query_image():
 @app.route("/query_result", methods=['POST'])
 def start_query():
 
-    target = os.path.join(APP_ROOT, 'static/images/query/')
+    target = os.path.join(APP_ROOT, 'static','images','query','') #changed from 'static/images/query/'
 
     if not os.path.isdir(target):
         os.mkdir(target)
@@ -73,10 +73,11 @@ def start_query():
     return visualize_query(query_result)
 
 def visualize_query(query_result):
-    image_names = [os.path.basename(x[1]) for x in query_result]
+    image_names = [os.path.basename(x[0]) for x in query_result] #changed from x[1] to x[0]
 
     # input infos
     input_code = irma.get_irma(image_names= [selected_image])
+    print("input_code",input_code)
     input_info =[irma.decode_as_str(x) for x in input_code]
 
     return render_template("query_result.html", 

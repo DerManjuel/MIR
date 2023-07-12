@@ -41,6 +41,7 @@ class Query:
         self.query_image = None
         self.features = None
         self.results = None
+        self.old_limit = 0
 
     def set_image_name(self, query_image_name):
         """
@@ -80,10 +81,10 @@ class Query:
             - Extract features wit "FeatureExtractor" and set to "self.features"
         """
         extractor = hand_crafted_features()
-        if isinstance(self.query_image, np.ndarray):
-            self.features = extractor.extract(image=self.query_image)
-        else:
+        if self.query_image is None: #isinstance(self.query_image, np.ndarray):
             exit()
+        else:
+            self.features = extractor.extract(image=self.query_image)
         
     def run(self, counter = 0, quantity = 10):
         """
@@ -105,8 +106,7 @@ class Query:
                 - Set the results to 'self.results'
             - Return the 'limit' first elements of the 'results' list.
         """
-        self.old_limit = 0
-        self.results = []
+        #self.results = []
         limit = counter + quantity
         if(self.results is None) or (self.old_limit != limit):
             CreatedSearcher = Searcher(self.path_to_index)

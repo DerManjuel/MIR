@@ -84,8 +84,10 @@ class IRMA:
         for names in image_names:
             spl = names.rsplit('.', 1)
             spl = spl[0]
+      
             if spl in self.image_dict:
                 code = self.image_dict[spl]
+              
             else:
                 code = None  
             code_lst.append(code)     
@@ -178,7 +180,7 @@ if __name__ == '__main__':
     #add your specific path here
     pathname = os.path.abspath("exercise_2/static/IRMA_data")
     
-    image_names = ["1880.png"]
+    image_names = ["3145.png"]
 
     irma = IRMA(pathname)
 

@@ -38,7 +38,7 @@ class hand_crafted_features:
         
         # TODO: You can even extend features with another method:
         #features.extend(self.thumbnail_features(image))
-
+   
         return features
     
     def histogram(self, image):
